@@ -1726,7 +1726,7 @@ JVM 在进行 GC 时，并非每次都对上面三个内存区域一起回收的
 
 官网地址：[https://docs.oracle.com/javase/8/docs/technotes/tools/windows/java.html](https://gitee.com/link?target=https%3A%2F%2Fdocs.oracle.com%2Fjavase%2F8%2Fdocs%2Ftechnotes%2Ftools%2Fwindows%2Fjava.html)
 
-```
+```bash
 // 详细的参数内容会在JVM下篇：性能监控与调优篇中进行详细介绍，这里先熟悉下
 -XX:+PrintFlagsInitial  //查看所有的参数的默认初始值
 -XX:+PrintFlagsFinal  //查看所有的参数的最终值（可能会存在修改，不再是初始值）
@@ -1747,7 +1747,7 @@ JVM 在进行 GC 时，并非每次都对上面三个内存区域一起回收的
 
 - 如果小于，则虚拟机会查看
 
-  ```
+  ```bash
   -XX:HandlePromotionFailure
   ```
 
@@ -1755,7 +1755,7 @@ JVM 在进行 GC 时，并非每次都对上面三个内存区域一起回收的
 
   - 如果
 
-    ```
+    ```bash
     HandlePromotionFailure=true
     ```
 
@@ -1959,7 +1959,7 @@ private static void alloc() {
 
 上述代码在主函数中进行了 1 亿次 alloc。调用进行对象创建，由于 User 对象实例需要占据约 16 字节的空间，因此累计分配空间达到将近 1.5GB。如果堆空间小于这个值，就必然会发生 GC。使用如下参数运行上述代码：
 
-```
+```bash
 -server -Xmx100m -Xms100m -XX:+DoEscapeAnalysis -XX:+PrintGC -XX:+EliminateAllocations
 ```
 
@@ -2254,7 +2254,7 @@ public class MethodAreaTest2 {
 
 `Object obj = new Object();`将会被翻译成如下字节码：
 
-```
+```bash
 0: new #2  // Class java/lang/Object
 1: dup
 2: invokespecial // Method java/lang/Object "<init>"() V
@@ -2298,8 +2298,6 @@ public class MethodAreaDemo {
 ![image-20210510151609566](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205141514388.png)
 
 ![image-20210510151648231](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205141514509.png)
-
-![image-20210510151712355](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205181515473.png)
 
 ![image-20210510151753579](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205141514854.png)
 
@@ -2712,7 +2710,7 @@ reference 中存储稳定句柄地址，对象被移动（垃圾收集时移动�
 
 也可能导致 OutOfMemoryError 异常
 
-```
+```java
 Exception in thread "main" java.lang.OutOfMemoryError: Direct buffer memory
     at java.nio.Bits.reserveMemory(Bits.java:693)
     at java.nio.DirectByteBuffer.<init>(DirectByteBuffer.java:123)
@@ -2748,8 +2746,6 @@ JVM 的主要任务是负责装载字节码到其内部，但字节码并不能�
 ![image-20200710081118053](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205161437870.png)
 
 那么，如果想要让一个 Java 程序运行起来，执行引擎（Execution Engine）的任务就是将字节码指令解释/编译为对应平台上的本地机器指令.才可以。简单来说，JVM 中的执行引擎充当了将高级语言翻译为机器语言的译者。
-
-[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-H3dqdi5T-1620741818957)(https://gitee.com/vectorx/ImageCloud/raw/master/img/20210511090655.png)]
 
 ### 9.1.1. 执行引擎的工作流程
 
@@ -3270,7 +3266,7 @@ public void test3(){
 
 我们拿例 4 的字节码进行查看，可以发现`s1 + s2`实际上是 new 了一个 StringBuilder 对象，并使用了 append 方法将 s1 和 s2 添加进来，最后调用了 toString 方法赋给 s4
 
-```
+```bash
  0 ldc #2 <a>
  2 astore_1
  3 ldc #3 <b>
@@ -3689,8 +3685,8 @@ Maximum bucket size     :         5
 
 在早期的 C/C++时代，垃圾回收基本上是手工进行的。开发人员可以使用 new 关键字进行内存申请，并使用 delete 关键字进行内存释放。比如以下代码：
 
-```
-MibBridge *pBridge= new cmBaseGroupBridge();
+```java
+MibBridge pBridge= new cmBaseGroupBridge();
 //如果注册失败，使用Delete释放该对象所占内存区域
 if (pBridge->Register(kDestroy) != NO ERROR）
 	delete pBridge;
@@ -3700,8 +3696,8 @@ if (pBridge->Register(kDestroy) != NO ERROR）
 
 在有了垃圾回收机制后，上述代码极有可能变成这样
 
-```
-MibBridge *pBridge = new cmBaseGroupBridge();
+```java
+MibBridge pBridge = new cmBaseGroupBridge();
 pBridge->Register(kDestroy);
 ```
 
@@ -3885,11 +3881,11 @@ finalize() 方法允许在子类中被重写，用于在对象被回收时进行
 
 #### 生存还是死亡？
 
-如果从所有的根节点都无法访问到某个对象，说明对象己经不再使用了。一般来说，此对象需要被回收。但事实上，也并非是“非死不可”的，这时候它们暂时处于“缓刑”阶段。一个无法触及的对象有可能在某一个条件下“复活”自己，如果这样，那么对它的回收就是不合理的，为此，定义虚拟机中的对象可能的三种状态。如下：
+如果从所有的根节点都无法访问到某个对象，说明对象己经不再使用了。一般来说，此对象需要被回收。但事实上，也并非是“非死不可”的，这时候它们暂时处于“缓刑”阶段。**一个无法触及的对象有可能在某一个条件下“复活”自己**，如果这样，那么对它的回收就是不合理的，为此，定义虚拟机中的对象可能的三种状态。如下：
 
-- 可触及的：从根节点开始，可以到达这个对象。
-- 可复活的：对象的所有引用都被释放，但是对象有可能在 finalize()中复活。
-- 不可触及的：对象的 finalize()被调用，并且没有复活，那么就会进入不可触及状态。不可触及的对象不可能被复活，因为finalize()只会被调用一次。
+- **可触及的**：从根节点开始，可以到达这个对象。
+- **可复活的**：对象的所有引用都被释放，但是对象有可能在 finalize()中复活。
+- **不可触及的**：对象的 finalize()被调用，并且没有复活，那么就会进入不可触及状态。不可触及的对象不可能被复活，**因为finalize()只会被调用一次。**
 
 以上 3 种状态中，是由于 inalize()方法的存在，进行的区分。只有在对象不可触及时才可以被回收。
 
@@ -3901,46 +3897,55 @@ finalize() 方法允许在子类中被重写，用于在对象被回收时进行
 2. 进行筛选，判断此对象是否有必要执行 finalize()方法
 3. 如果对象 objA 没有重写 finalize()方法，或者 finalize()方法已经被虚拟机调用过，则虚拟机视为“没有必要执行”，objA 被判定为不可触及的。
 4. 如果对象 objA 重写了 finalize()方法，且还未执行过，那么 objA 会被插入到 F-Queue 队列中，由一个虚拟机自动创建的、低优先级的 Finalizer 线程触发其 finalize()方法执行。
-5. finalize()方法是对象逃脱死亡的最后机会，稍后 GC 会对 F-Queue 队列中的对象进行第二次标记。如果 objA 在 finalize()方法中与引用链上的任何一个对象建立了联系，那么在第二次标记时，objA 会被移出“即将回收”集合。之后，对象会再次出现没有引用存在的情况。在这个情况下，finalize 方法不会被再次调用，对象会直接变成不可触及的状态，也就是说，一个对象的 finalize 方法只会被调用一次。
+5. **==finalize()方法是对象逃脱死亡的最后机会==**，稍后 GC 会对 F-Queue 队列中的对象进行第二次标记。**如果 objA 在 finalize()方法中与引用链上的任何一个对象建立了联系**，那么在第二次标记时，objA 会被移出“即将回收”集合。之后，对象会再次出现没有引用存在的情况。在这个情况下，finalize 方法不会被再次调用，对象会直接变成不可触及的状态，也就是说，一个对象的 finalize 方法只会被调用一次。
 
 **举例**
 
 ```java
+/**
+ * 测试Object类中finalize()方法，即对象的finalization机制。
+ */
 public class CanReliveObj {
-    // 类变量，属于GC Roots的一部分
-    public static CanReliveObj canReliveObj;
+    public static CanReliveObj obj;//类变量，属于 GC Root
 
+
+    //此方法只能被调用一次
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
         System.out.println("调用当前类重写的finalize()方法");
-        canReliveObj = this;
+        obj = this;//当前待回收的对象在finalize()方法中与引用链上的一个对象obj建立了联系
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        canReliveObj = new CanReliveObj();
-        canReliveObj = null;
-        System.gc();
-        System.out.println("-----------------第一次gc操作------------");
-        // 因为Finalizer线程的优先级比较低，暂停2秒，以等待它
-        Thread.sleep(2000);
-        if (canReliveObj == null) {
-            System.out.println("obj is dead");
-        } else {
-            System.out.println("obj is still alive");
-        }
 
-        System.out.println("-----------------第二次gc操作------------");
-        canReliveObj = null;
-        System.gc();
-        // 下面代码和上面代码是一样的，但是 canReliveObj却自救失败了
-        Thread.sleep(2000);
-        if (canReliveObj == null) {
-            System.out.println("obj is dead");
-        } else {
-            System.out.println("obj is still alive");
+    public static void main(String[] args) {
+        try {
+            obj = new CanReliveObj();
+            // 对象第一次成功拯救自己
+            obj = null;
+            System.gc();//调用垃圾回收器
+            System.out.println("第1次 gc");
+            // 因为Finalizer线程优先级很低，暂停2秒，以等待它
+            Thread.sleep(2000);
+            if (obj == null) {
+                System.out.println("obj is dead");
+            } else {
+                System.out.println("obj is still alive");
+            }
+            System.out.println("第2次 gc");
+            // 下面这段代码与上面的完全相同，但是这次自救却失败了
+            obj = null;
+            System.gc();
+            // 因为Finalizer线程优先级很低，暂停2秒，以等待它
+            Thread.sleep(2000);
+            if (obj == null) {
+                System.out.println("obj is dead");
+            } else {
+                System.out.println("obj is still alive");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
     }
 }
 ```
@@ -3948,10 +3953,10 @@ public class CanReliveObj {
 运行结果
 
 ```
------------------第一次gc操作------------
 调用当前类重写的finalize()方法
+第1次 gc
 obj is still alive
------------------第二次gc操作------------
+第2次 gc
 obj is dead
 ```
 
@@ -4049,7 +4054,7 @@ MAT 是基于 Eclipse 开发的，是一款免费的性能分析工具。
 
 #### 特别的
 
-如果系统中的垃圾对象很多，复制算法需要复制的存活对象数量并不会太大，或者说非常低才行
+如果系统中的垃圾对象很少（存活对象比较多），复制算法就不太理想了，因为复制算法需要复制的存活对象数量并不会太大，或者说非常低才行
 
 #### 应用场景
 
@@ -4061,7 +4066,7 @@ MAT 是基于 Eclipse 开发的，是一款免费的性能分析工具。
 
 #### 标记-压缩（或标记-整理、Mark-Compact）算法
 
-复制算法的高效性是建立在存活对象少、垃圾对象多的前提下的。这种情况在新生代经常发生，但是在老年代，更常见的情况是大部分对象都是存活对象。如果依然使用复制算法，由于存活对象较多，复制的成本也将很高。因此，基于老年代垃圾回收的特性，需要使用其他的算法。
+复制算法的高效性是建立在存活对象少、垃圾对象多的前提下的。这种情况在新生代经常发生，但是在老年代，更常见的情况是大部分对象都是存活对象。如果依然使用复制算法，由于存活对象较多，复制的成本也将很高。因此，**基于老年代垃圾回收的特性，需要使用其他的算法。**
 
 标记一清除算法的确可以应用在老年代中，但是该算法不仅执行效率低下，而且在执行完内存回收后还会产生内存碎片，所以 JVM 的设计者需要在此基础之上进行改进。标记-压缩（Mark-Compact）算法由此诞生。
 
@@ -4180,7 +4185,7 @@ MAT 是基于 Eclipse 开发的，是一款免费的性能分析工具。
 
 ## 12.1. System.gc()的理解
 
-在默认情况下，通过 system.gc()或者 Runtime.getRuntime().gc() 的调用，会显式触发 Full GC，同时对老年代和新生代进行回收，尝试释放被丢弃对象占用的内存。
+在默认情况下，通过 system.gc()或者 Runtime.getRuntime().gc() 的调用，**会显式触发 Full GC**，同时对老年代和新生代进行回收，尝试释放被丢弃对象占用的内存。
 
 然而 System.gc() 调用附带一个免责声明，无法保证对垃圾收集器的调用。(不能确保立即生效)
 
@@ -4190,10 +4195,10 @@ JVM 实现者可以通过 System.gc() 调用来决定 JVM 的 GC 行为。而一
 public class SystemGCTest {
     public static void main(String[] args) {
         new SystemGCTest();
-        System.gc();// 提醒JVM的垃圾回收器执行gc，但是不确定是否马上执行gc
-        // 与Runtime.getRuntime().gc();的作用一样
+        System.gc();//提醒jvm的垃圾回收器执行gc,但是不确定是否马上执行gc
+        //与Runtime.getRuntime().gc();的作用一样。
 
-        System.runFinalization();//强制执行使用引用的对象的finalize()方法
+        System.runFinalization();//强制调用失去引用的对象的finalize()方法
     }
 
     @Override
@@ -4239,7 +4244,7 @@ javadoc 中对 OutOfMemoryError 的解释是，没有空闲内存，并且垃圾
 
 ### 内存泄漏（Memory Leak）
 
-也称作“存储渗漏”。严格来说，只有对象不会再被程序用到了，但是 GC 又不能回收他们的情况，才叫内存泄漏。
+也称作“存储渗漏”。**严格来说，只有对象不会再被程序用到了，但是 GC 又不能回收他们的情况，才叫内存泄漏。**
 
 但实际情况很多时候一些不太好的实践（或疏忽）会导致对象的生命周期变得很长甚至导致 00M，也可以叫做宽泛意义上的“内存泄漏”。
 
@@ -4261,7 +4266,7 @@ javadoc 中对 OutOfMemoryError 的解释是，没有空闲内存，并且垃圾
 
 ## 12.3. Stop The World
 
-Stop-the-World，简称 STW，指的是 GC 事件发生过程中，会产生应用程序的停顿。停顿产生时整个应用程序线程都会被暂停，没有任何响应，有点像卡死的感觉，这个停顿称为 STW。
+Stop-the-World，简称 STW，指的是 GC 事件发生过程中，会产生应用程序的停顿。**停顿产生时整个应用程序线程都会被暂停，没有任何响应，有点像卡死的感觉，这个停顿称为 STW。**
 
 可达性分析算法中枚举根节点（GC Roots）会导致所有 Java 执行线程停顿。
 
@@ -4275,9 +4280,63 @@ STW 事件和采用哪款 GC 无关，所有的 GC 都有这个事件。
 
 哪怕是 G1 也不能完全避免 Stop-the-World 情况发生，只能说垃圾回收器越来越优秀，回收效率越来越高，尽可能地缩短了暂停时间。
 
-STW 是 JVM 在后台自动发起和自动完成的。在用户不可见的情况下，把用户正常的工作线程全部停掉。
+STW 是 JVM **在后台自动发起和自动完成的**。在用户不可见的情况下，把用户正常的工作线程全部停掉。
 
 开发中不要用 System.gc() 会导致 Stop-the-World 的发生。
+
+示例:
+
+```java
+public class StopTheWorldDemo {
+    public static class WorkThread extends Thread {
+        List<byte[]> list = new ArrayList<byte[]>();
+
+        public void run() {
+            try {
+                while (true) {
+                    for(int i = 0;i < 1000;i++){
+                        byte[] buffer = new byte[1024];
+                        list.add(buffer);
+                    }
+
+                    if(list.size() > 10000){
+                        list.clear();
+                        System.gc();//会触发full gc，进而会出现STW事件
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public static class PrintThread extends Thread {
+        public final long startTime = System.currentTimeMillis();
+
+        public void run() {
+            try {
+                while (true) {
+                    // 每秒打印时间信息
+                    long t = System.currentTimeMillis() - startTime;
+                    System.out.println(t / 1000 + "." + t % 1000);
+                    Thread.sleep(1000);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        WorkThread w = new WorkThread();
+        PrintThread p = new PrintThread();
+        w.start();
+        p.start();
+    }
+}
+```
+
+
 
 ## 12.4. 垃圾回收的并行与并发
 
@@ -4430,7 +4489,7 @@ StringBuffer str1 = str;
 
 在 JDK1.2 版之后提供了 java.lang.ref.SoftReference 类来实现软引用
 
-```
+```java
 Object obj = new Object(); // 声明强引用
 SoftReference<Object> sf = new SoftReference<>(obj);
 obj = null; //销毁强引用
@@ -4611,7 +4670,7 @@ obj = null;
 
 ![image-20200713093551365](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205191810048.png)
 
-官方手册：[https://www.oracle.com/technetwork/java/javase/tech/memorymanagement-whitepaper-1-150020.pdf](https://gitee.com/link?target=https%3A%2F%2Fwww.oracle.com%2Ftechnetwork%2Fjava%2Fjavase%2Ftech%2Fmemorymanagement-whitepaper-1-150020.pdf)
+官方手册：[https://www.oracle.com/technetwork/java/javase/tech/memorymanagement-whitepaper-1-150020.pdf](https://www.oracle.com/technetwork/java/javase/tech/memorymanagement-whitepaper-1-150020.pdf)
 
 ![image-20210512145950897](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205191810433.png)
 
@@ -4630,7 +4689,7 @@ obj = null;
 1. 两个收集器间有连线，表明它们可以搭配使用：Serial/Serial Old、Serial/CMS、ParNew/Serial Old、ParNew/CMS、Parallel Scavenge/Serial Old、Parallel Scavenge/Parallel Old、G1；
 2. 其中 Serial Old 作为 CMS 出现"`Concurrent Mode Failure`"失败的后备预案。
 3. （红色虚线）由于维护和兼容性测试的成本，在 JDK 8 时将 Serial+CMS、ParNew+Serial Old 这两个组合声明为废弃（JEP173），并在 JDK9 中完全取消了这些组合的支持（JEP214），即：移除。
-4. （绿色虚线）JDK14 中：弃用 Parallel Scavenge 和 Serialold GC 组合（JEP366）
+4. （绿色虚线）JDK14 中：弃用 Parallel Scavenge 和 Serial Old GC 组合（JEP366）
 5. （绿色虚框）JDK14 中：删除 CMS 垃圾回收器（JEP363）
 
 ### 13.2.5. 不同的垃圾收集器概述
@@ -4724,7 +4783,7 @@ Parallel Old 收集器采用了标记-压缩算法，但同样也是基于并行
 - `-XX:+UseParallelOldGC` 手动指定老年代都是使用并行回收收集器。
 
   - 分别适用于新生代和老年代。默认 jdk8 是开启的。
-  - 上面两个参数，默认开启一个，另一个也会被开启。（互相激活）
+  - 上面两个参数，默认开启一个，另一个也会被开启。（**互相激活**）
 
 - `-XX:ParallelGCThreads` 设置年轻代并行收集器的线程数。一般地，最好与 CPU 数量相等，以避免过多的线程数影响垃圾收集性能。
 
@@ -4738,7 +4797,7 @@ Parallel Old 收集器采用了标记-压缩算法，但同样也是基于并行
 
   - 为了尽可能地把停顿时间控制在 MaxGCPauseMills 以内，收集器在工作时会调整 Java 堆大小或者其他一些参数。
   - 对于用户来讲，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。所以服务器端适合 Parallel，进行控制。
-  - 该参数使用需谨慎。
+  - **该参数使用需谨慎。**
 
 - `-XX:GCTimeRatio` 垃圾收集时间占总时间的比例（=1/（N+1））。用于衡量吞吐量的大小。
 
@@ -4934,7 +4993,7 @@ HotSpot 垃圾收集器里，除了 G1 以外，其他的垃圾收集器使用�
 
 ### 13.7.6. 分区 Region：化整为零
 
-使用 G1 收集器时，它将整个 Java 堆划分成约 2048 个大小相同的独立 Region 块，每个 Region 块大小根据堆空间的实际大小而定，整体被控制在 1MB 到 32MB 之间，且为 2 的 N 次幂，即 1MB，2MB，4MB，8MB，16MB，32MB。可以通过`-XX:G1HeapRegionSize`设定。所有的 Region 大小相同，且在 JVM 生命周期内不会被改变。
+使用 G1 收集器时，它将整个 Java 堆划分成约 2048 个大小相同的独立 Region 块，每个 Region 块大小根据堆空间的实际大小而定，整体被控制在 1MB 到 32MB 之间，且为 2 的 N 次幂，即 1MB，2MB，4MB，8MB，16MB，32MB。可以通过`-XX:G1HeapRegionSize`设定。**所有的 Region 大小相同，且在 JVM 生命周期内不会被改变。**
 
 虽然还保留有新生代和老年代的概念，但新生代和老年代不再是物理隔离的了，它们都是一部分 Region（不需要连续）的集合。通过 Region 的动态分配方式实现逻辑上的连续。
 
@@ -4944,7 +5003,7 @@ HotSpot 垃圾收集器里，除了 G1 以外，其他的垃圾收集器使用�
 
 G1 垃圾收集器还增加了一种新的内存区域，叫做 Humongous 内存区域，如图中的 H 块。主要用于存储大对象，如果超过 1.5 个 region，就放到 H。
 
-设置 H 的原因：对于堆中的对象，默认直接会被分配到老年代，但是如果它是一个短期存在的大对象就会对垃圾收集器造成负面影响。为了解决这个问题，G1 划分了一个 Humongous 区，它用来专门存放大对象。如果一个 H 区装不下一个大对象，那么 G1 会寻找连续的 H 区来存储。为了能找到连续的 H 区，有时候不得不启动 Full GC。G1 的大多数行为都把 H 区作为老年代的一部分来看待。
+设置 H 的原因：对于堆中的对象，默认直接会被分配到老年代，但是如果它是一个短期存在的大对象就会对垃圾收集器造成负面影响。为了解决这个问题，G1 划分了一个 Humongous 区，它用来专门存放大对象。**如果一个 H 区装不下一个大对象，那么 G1 会寻找连续的 H 区来存储。**为了能找到连续的 H 区，有时候不得不启动 Full GC。G1 的大多数行为都把 H 区作为老年代的一部分来看待。
 
 每个 Region 都是通过指针碰撞来分配空间
 
@@ -5143,7 +5202,7 @@ Java 垃圾收集器的配置对于 JVM 优化来说是一个很重要的选择�
 
 打开 GC 日志
 
-```
+```bash
 -verbose:gc
 ```
 
@@ -5195,7 +5254,7 @@ Times：user：指的是垃圾收集器花费的所有CPU时间，sys：花费�
 
 打开 GC 日志
 
-```
+```bash
 -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimestamps -XX:+PrintGCDatestamps
 ```
 
@@ -5213,7 +5272,7 @@ Times：user：指的是垃圾收集器花费的所有CPU时间，sys：花费�
 
 如果想把 GC 日志存到文件的话，是下面的参数：
 
-```
+```bash
 -Xloggc:/path/to/gc.log
 ```
 
@@ -5267,13 +5326,31 @@ object space（显示个使用百分比，自己能算出来）21504K， 238 use
 
 **举例**
 
-```
-private static final int _1MB = 1024 * 1024;public static void testAllocation() {    byte [] allocation1, allocation2, allocation3, allocation4;    allocation1 = new byte[2 *_1MB];    allocation2 = new byte[2 *_1MB];    allocation3 = new byte[2 *_1MB];    allocation4 = new byte[4 *_1MB];}public static void main(String[] args) {    testAllocation();}
+```java
+/**
+ * 在jdk7 和 jdk8中分别执行
+ * -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8 -XX:+UseSerialGC
+ */
+public class GCLogTest1 {
+    private static final int _1MB = 1024 * 1024;
+
+    public static void testAllocation() {
+        byte[] allocation1, allocation2, allocation3, allocation4;
+        allocation1 = new byte[2 * _1MB];
+        allocation2 = new byte[2 * _1MB];
+        allocation3 = new byte[2 * _1MB];
+        allocation4 = new byte[4 * _1MB];
+    }
+
+    public static void main(String[] agrs) {
+        testAllocation();
+    }
+}
 ```
 
 设置 JVM 参数
 
-```
+```bash
 -Xms10m -Xmx10m -XX:+PrintGCDetails
 ```
 
@@ -5306,8 +5383,6 @@ ZGC:A Scalable Low-Latency Garbage Collector（Experimental）（ZGC：可伸缩
 现在 G1 回收器已成为默认回收器好几年了。
 
 我们还看到了引入了两个新的收集器：ZGC（JDK11 出现）和 Shenandoah（Open JDK12）。主打特点：低停顿时间
-
-![image-20210512195528695](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205191811017.png)
 
 ### 13.X.2. Open JDK12 的 Shenandoash GC
 
@@ -5376,7 +5451,7 @@ JDK14 之前，ZGC 仅 Linux 才支持。
 
 现在 mac 或 Windows 上也能使用 zGC 了，示例如下：
 
-```
+```bash
 -XX:+UnlockExperimentalVMOptions -XX:+UseZGC
 ```
 
@@ -5386,4 +5461,4 @@ AliGC 是阿里巴巴 JVM 团队基于 G1 算法，面向大堆（LargeHeap）�
 
 ![image-20200714093604012](https://chenfl-note.oss-cn-hangzhou.aliyuncs.com/note/java/jvm/img/202205191811215.png)
 
-当然，其它厂商也提供了各种别具一格的 GC 实现，例如比较有名的低延迟 GC：Zing，有兴趣可以参考提供的链接 [https://www.infoq.com/articles/azul_gc_in_detail](https://gitee.com/link?target=https%3A%2F%2Fwww.infoq.com%2Farticles%2Fazul_gc_in_detail)
+当然，其它厂商也提供了各种别具一格的 GC 实现，例如比较有名的低延迟 GC：Zing，有兴趣可以参考提供的链接 [https://www.infoq.com/articles/azul_gc_in_detail](https://www.infoq.com/articles/azul_gc_in_detail)
